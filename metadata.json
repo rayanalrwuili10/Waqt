@@ -1,0 +1,8 @@
+{
+  "name": "وَقْت – WAQT",
+  "description": "نظام شامل لإدارة الحياة يجمع بين الصحة، الوقت، الدين، والمال مع ذكاء اصطناعي متقدم.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}

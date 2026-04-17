@@ -1,0 +1,40 @@
+{
+  "entities": {
+    "users": {
+      "title": "المستخدم",
+      "description": "بيانات المستخدم الأساسية والإحصائيات.",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "displayName": { "type": "string" },
+        "password": { "type": "string" },
+        "points": { "type": "number" },
+        "theme": { "type": "string", "enum": ["light", "dark"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["username", "displayName", "password"]
+    },
+    "health": {
+      "title": "الصحة",
+      "description": "سجلات الصحة اليومية.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "steps": { "type": "number" },
+        "weight": { "type": "number" }
+      },
+      "required": ["uid", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "users",
+      "description": "بيانات الملف الشخصي للمستخدم."
+    },
+    "/healthRecords/{recordId}": {
+      "schema": "health",
+      "description": "سجلات الصحة اليومية للمستخدمين."
+    }
+  }
+}

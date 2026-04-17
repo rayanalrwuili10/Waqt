@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-health: #10B981;
+  --color-money: #3B82F6;
+  --color-faith: #F59E0B;
+  --color-prod: #8B5CF6;
+  --color-danger: #EF4444;
+  --color-card: #1E293B;
+  --color-bg: #0F172A;
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-slate-50 font-sans;
+    direction: rtl;
+  }
+}
+
+.geometric-gradient {
+  background: linear-gradient(90deg, #1E293B 0%, #0F172A 100%);
+}
+
+.gauge-gradient {
+  background: radial-gradient(circle at center, #1E293B 0%, #111827 100%);
+}
+
+.custom-card {
+  @apply bg-card rounded-2xl p-5 border border-white/5 flex flex-col justify-between relative overflow-hidden;
+}
+
+.btn-emergency {
+  @apply bg-danger text-white flex items-center justify-center font-bold text-xl cursor-pointer border-none shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all active:scale-95;
+}
+
+.stat-bar {
+  @apply h-1.5 bg-slate-700 rounded-full mt-2.5 overflow-hidden;
+}
+
+.stat-fill {
+  @apply h-full bg-health;
+}
+
+/* Custom RTL fixes for some layouts if needed */
+.rtl-flip {
+  transform: scaleX(-1);
+}
+
