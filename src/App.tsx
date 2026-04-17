@@ -52,6 +52,12 @@ export default function App() {
   const [state, setState] = useState<AppState>(INITIAL_STATE);
   const [aiInsight, setAiInsight] = useState<string>("جاري تحليل بياناتك...");
   const [loadingAI, setLoadingAI] = useState(false);
+  const [showToast, setShowToast] = useState<string | null>(null);
+
+  const triggerToast = (msg: string) => {
+    setShowToast(msg);
+    setTimeout(() => setShowToast(null), 3000);
+  };
 
   useEffect(() => {
     const savedUser = localStorage.getItem('waqt_user');
@@ -148,22 +154,22 @@ export default function App() {
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'dashboard': return <Dashboard state={state} aiInsight={aiInsight} lifeScore={lifeScore} setActiveSection={setActiveSection} setState={setState} />;
-      case 'health': return <HealthSection state={state} setState={setState} addPoints={addPoints} />;
-      case 'food': return <FoodSection state={state} setState={setState} addPoints={addPoints} />;
-      case 'money': return <MoneySection state={state} setState={setState} addPoints={addPoints} />;
-      case 'faith': return <FaithSection state={state} setState={setState} points={points} addPoints={addPoints} />;
-      case 'habits': return <HabitsSection state={state} setState={setState} addPoints={addPoints} />;
-      case 'goals': return <GoalsSection state={state} setState={setState} addPoints={addPoints} />;
-      case 'travel': return <TravelSection state={state} setState={setState} addPoints={addPoints} />;
-      case 'emergency': return <EmergencySection setActiveSection={setActiveSection} state={state} setState={setState} />;
-      case 'medical': return <MedicalSection state={state} setState={setState} />;
-      case 'home': return <HomeSection state={state} setState={setState} addPoints={addPoints} />;
+      case 'dashboard': return <Dashboard state={state} aiInsight={aiInsight} lifeScore={lifeScore} setActiveSection={setActiveSection} setState={setState} triggerToast={triggerToast} />;
+      case 'health': return <HealthSection state={state} setState={setState} addPoints={addPoints} triggerToast={triggerToast} />;
+      case 'food': return <FoodSection state={state} setState={setState} addPoints={addPoints} triggerToast={triggerToast} />;
+      case 'money': return <MoneySection state={state} setState={setState} addPoints={addPoints} triggerToast={triggerToast} />;
+      case 'faith': return <FaithSection state={state} setState={setState} points={points} addPoints={addPoints} triggerToast={triggerToast} />;
+      case 'habits': return <HabitsSection state={state} setState={setState} addPoints={addPoints} triggerToast={triggerToast} />;
+      case 'goals': return <GoalsSection state={state} setState={setState} addPoints={addPoints} triggerToast={triggerToast} />;
+      case 'travel': return <TravelSection state={state} setState={setState} addPoints={addPoints} triggerToast={triggerToast} />;
+      case 'emergency': return <EmergencySection setActiveSection={setActiveSection} state={state} setState={setState} triggerToast={triggerToast} />;
+      case 'medical': return <MedicalSection state={state} setState={setState} triggerToast={triggerToast} />;
+      case 'home': return <HomeSection state={state} setState={setState} addPoints={addPoints} triggerToast={triggerToast} />;
       case 'features': return <FeaturesSection setActiveSection={setActiveSection} />;
-      case 'focus': return <FocusSection state={state} setState={setState} addPoints={addPoints} />;
-      case 'store': return <StoreSection points={points} addPoints={addPoints} />;
+      case 'focus': return <FocusSection state={state} setState={setState} addPoints={addPoints} triggerToast={triggerToast} />;
+      case 'store': return <StoreSection points={points} addPoints={addPoints} triggerToast={triggerToast} />;
       case 'personality': return <PersonalitySection aiInsight={aiInsight} state={state} />;
-      case 'sleep': return <SleepSection state={state} setState={setState} addPoints={addPoints} />;
+      case 'sleep': return <SleepSection state={state} setState={setState} addPoints={addPoints} triggerToast={triggerToast} />;
       case 'analytics': return <QuranSection />;
       case 'productivity': return <ComingSoon section="الإنتاجية المتقدم" />;
       default: return <Dashboard state={state} aiInsight={aiInsight} lifeScore={lifeScore} setActiveSection={setActiveSection} setState={setState} />;
@@ -221,13 +227,28 @@ export default function App() {
       </nav>
 
       <div className="fixed bottom-24 left-6 z-50">
-        <button 
+        <motion.button 
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           className="w-14 h-14 bg-danger text-white rounded-full flex items-center justify-center animate-pulse shadow-xl shadow-danger/30"
           onClick={() => setActiveSection('emergency')}
         >
           <AlertCircle size={28} />
-        </button>
+        </motion.button>
       </div>
+
+      <AnimatePresence>
+        {showToast && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-white text-bg px-6 py-3 rounded-full shadow-2xl border border-white/20 font-black text-sm"
+          >
+            {showToast}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -447,7 +468,7 @@ function StatCard({ color, title, value, sub, icon: Icon }: any) {
   );
 }
 
-function Dashboard({ state, aiInsight, lifeScore, setActiveSection, setState }: any) {
+function Dashboard({ state, aiInsight, lifeScore, setActiveSection, setState, triggerToast }: any) {
   const modes = [
     { id: 'standard', label: 'الوضع العادي', icon: HomeIcon },
     { id: 'student', label: 'وضع الطالب', icon: BookOpen },
@@ -458,7 +479,11 @@ function Dashboard({ state, aiInsight, lifeScore, setActiveSection, setState }: 
 
   return (
     <div className="grid grid-cols-2 gap-4 pb-24" dir="rtl">
-      <section className="col-span-2 bg-gradient-to-br from-faith/20 to-money/20 p-8 rounded-[45px] border border-white/10 flex flex-col justify-between h-52 relative overflow-hidden group">
+      <motion.section 
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="col-span-2 bg-gradient-to-br from-faith/20 to-money/20 p-8 rounded-[45px] border border-white/10 flex flex-col justify-between h-52 relative overflow-hidden group cursor-pointer"
+      >
         <div className="absolute top-0 right-0 w-32 h-32 bg-faith/20 blur-[80px] -mr-16 -mt-16 group-hover:bg-faith/40 transition-colors" />
         <div className="flex justify-between items-start z-10">
           <div className="text-right">
@@ -476,15 +501,18 @@ function Dashboard({ state, aiInsight, lifeScore, setActiveSection, setState }: 
             className="bg-faith h-full shadow-[0_0_25px_rgba(139,92,246,0.9)] rounded-full"
           />
         </div>
-      </section>
+      </motion.section>
 
       <div className="col-span-2 flex gap-2 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
         {modes.map((mode) => (
           <button 
             key={mode.id}
-            onClick={() => setState((prev: any) => ({ ...prev, lifeMode: mode.id }))}
+            onClick={() => {
+              setState((prev: any) => ({ ...prev, lifeMode: mode.id }));
+              triggerToast(`تم تفعيل ${mode.label} ✅`);
+            }}
             className={cn(
-              "flex-none px-6 py-4 rounded-3xl border text-xs font-black transition-all flex items-center gap-3 whitespace-nowrap",
+              "flex-none px-6 py-4 rounded-3xl border text-xs font-black transition-all flex items-center gap-3 whitespace-nowrap active:scale-95",
               state.lifeMode === mode.id ? "bg-white text-bg border-white shadow-xl" : "bg-white/5 border-white/10 opacity-40 hover:opacity-100"
             )}
           >
@@ -563,8 +591,19 @@ function SectionHeader({ title, icon: Icon }: any) {
   );
 }
 
-function HealthSection({ state, setState, addPoints }: any) {
+function HealthSection({ state, setState, addPoints, triggerToast }: any) {
   const [stepsInput, setStepsInput] = useState('');
+
+  const handleUpdateSteps = () => {
+    const s = parseInt(stepsInput);
+    if (!isNaN(s) && s >= 0) {
+      setState((p:any)=>({...p, health:{...p.health, steps: s}})); 
+      addPoints(10); 
+      setStepsInput('');
+      triggerToast('تم تحديث النشاط ورصيدك زاد ١٠ نقاط! 🏃‍♂️');
+    }
+  };
+
   return (
     <div className="space-y-6 pb-10" dir="rtl">
       <SectionHeader title="الصحة والنشاط" icon={Heart} />
@@ -587,8 +626,8 @@ function HealthSection({ state, setState, addPoints }: any) {
           value={stepsInput} onChange={e => setStepsInput(e.target.value)}
         />
         <button 
-          onClick={() => { setState((p:any)=>({...p, health:{...p.health, steps: parseInt(stepsInput)}})); addPoints(5); setStepsInput(''); }}
-          className="bg-health text-bg px-6 py-3 rounded-2xl font-black text-xs uppercase"
+          onClick={handleUpdateSteps}
+          className="bg-health text-bg px-6 py-3 rounded-2xl font-black text-xs uppercase active:scale-95 transition-all"
         >
           تحديث
         </button>
@@ -597,10 +636,19 @@ function HealthSection({ state, setState, addPoints }: any) {
   );
 }
 
-function FoodSection({ state, setState, addPoints }: any) {
+function FoodSection({ state, setState, addPoints, triggerToast }: any) {
   const [foodName, setFoodName] = useState('');
   const [calories, setCalories] = useState('');
   const total = state.food.reduce((s:any, f:any)=>s+f.calories, 0);
+
+  const handleAddFood = () => {
+    if (!foodName || !calories) return;
+    setState((p:any)=>({...p, food: [...p.food, {id: Date.now(), name: foodName, calories: parseInt(calories)} ]})); 
+    addPoints(5); 
+    setFoodName(''); 
+    setCalories('');
+    triggerToast('تم تسجيل الوجبة! صحة وعافية 🥗');
+  };
 
   return (
     <div className="space-y-6 pb-10" dir="rtl">
@@ -611,11 +659,17 @@ function FoodSection({ state, setState, addPoints }: any) {
           <div className="text-5xl font-black">{total}</div>
         </div>
         <div className="flex gap-2">
-          <button className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center gap-2">
+          <button 
+            onClick={() => triggerToast('ماسح الباركود متاح في النسخة الكاملة فقط 📱')}
+            className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center gap-2 active:bg-white/10 transition-all"
+          >
             <Scan size={20} className="text-health" />
             <span className="text-[10px] font-black">ماسح الباركود</span>
           </button>
-          <button className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center gap-2">
+          <button 
+            onClick={() => triggerToast('البحث متاح مع باقة وقت برو 🔎')}
+            className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center gap-2 active:bg-white/10 transition-all"
+          >
             <Search size={20} className="text-health" />
             <span className="text-[10px] font-black">البحث عن وجبة</span>
           </button>
@@ -624,18 +678,18 @@ function FoodSection({ state, setState, addPoints }: any) {
       <div className="bg-white/5 p-6 rounded-[35px] border border-white/10 space-y-4">
         <input 
           type="text" placeholder="اسم الوجبة..." 
-          className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-right font-bold"
+          className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-right font-bold outline-none focus:border-health/30 transition-all"
           value={foodName} onChange={e => setFoodName(e.target.value)}
         />
         <div className="flex gap-2">
           <input 
             type="number" placeholder="السعرات" 
-            className="flex-1 bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-right font-bold"
+            className="flex-1 bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-right font-bold outline-none focus:border-health/30 transition-all"
             value={calories} onChange={e => setCalories(e.target.value)}
           />
           <button 
-            onClick={() => { setState((p:any)=>({...p, food: [...p.food, {id: Date.now(), name: foodName, calories: parseInt(calories)} ]})); addPoints(5); setFoodName(''); setCalories(''); }}
-            className="bg-health text-bg px-8 rounded-2xl font-black text-xs"
+            onClick={handleAddFood}
+            className="bg-health text-bg px-8 rounded-2xl font-black text-xs active:scale-95 transition-all"
           >
             إضافة
           </button>
@@ -645,10 +699,19 @@ function FoodSection({ state, setState, addPoints }: any) {
   );
 }
 
-function MoneySection({ state, setState, addPoints }: any) {
+function MoneySection({ state, setState, addPoints, triggerToast }: any) {
   const [amount, setAmount] = useState('');
   const [desc, setDesc] = useState('');
   const balance = state.money.budget - state.money.transactions.reduce((s:any, t:any)=>s+t.amount, 0);
+
+  const handleSaveExpense = () => {
+    if (!amount || !desc) return;
+    setState((p:any)=>({...p, money:{...p.money, transactions: [{id: Date.now(), title: desc, amount: parseInt(amount)}, ...p.money.transactions] }})); 
+    addPoints(10); 
+    setDesc(''); 
+    setAmount('');
+    triggerToast('تم تسجيل المصروف. انتبه لميزانيتك! 💸');
+  };
 
   return (
     <div className="space-y-6 pb-10" dir="rtl">
@@ -660,29 +723,35 @@ function MoneySection({ state, setState, addPoints }: any) {
       <div className="bg-white/5 p-6 rounded-[35px] border border-white/10 space-y-4">
         <input 
           type="text" placeholder="ماذا صرفت؟" 
-          className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-right font-bold"
+          className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-right font-bold outline-none focus:border-money/30 transition-all"
           value={desc} onChange={e => setDesc(e.target.value)}
         />
         <div className="flex gap-2">
           <input 
             type="number" placeholder="المبلغ" 
-            className="flex-1 bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-right font-bold"
+            className="flex-1 bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-right font-bold outline-none focus:border-money/30 transition-all"
             value={amount} onChange={e => setAmount(e.target.value)}
           />
           <button 
-            onClick={() => { setState((p:any)=>({...p, money:{...p.money, transactions: [{id: Date.now(), title: desc, amount: parseInt(amount)}, ...p.money.transactions] }})); addPoints(10); setDesc(''); setAmount(''); }}
-            className="bg-money text-bg px-8 rounded-2xl font-black text-xs"
+            onClick={handleSaveExpense}
+            className="bg-money text-bg px-8 rounded-2xl font-black text-xs active:scale-95 transition-all"
           >
             حفظ
           </button>
         </div>
       </div>
       <div className="flex gap-2">
-        <button className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-3">
+        <button 
+          onClick={() => triggerToast('جاري تحديث أسعار الصرف... متاح قريباً 📍')}
+          className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-3 active:bg-white/10"
+        >
           <Globe size={16} className="text-money" />
           <span className="text-[10px] font-black">محول العملات</span>
         </button>
-        <button className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-3">
+        <button 
+          onClick={() => triggerToast('أهداف الادخار قيد المراجعة 🎯')}
+          className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-3 active:bg-white/10"
+        >
           <Target size={16} className="text-money" />
           <span className="text-[10px] font-black">أهداف الادخار</span>
         </button>
@@ -691,7 +760,7 @@ function MoneySection({ state, setState, addPoints }: any) {
   );
 }
 
-function FaithSection({ state, setState, addPoints }: any) {
+function FaithSection({ state, setState, addPoints, triggerToast }: any) {
   return (
     <div className="space-y-6 pb-10" dir="rtl">
       <SectionHeader title="الورد الإيماني" icon={Sparkles} />
@@ -701,18 +770,28 @@ function FaithSection({ state, setState, addPoints }: any) {
           <div className="text-3xl font-black">{state.faith.ramadanMode ? 'وضع رمضان' : 'الورد اليومي'}</div>
         </div>
         <button 
-          onClick={() => setState((p:any)=>({...p, faith: {...p.faith, ramadanMode: !p.faith.ramadanMode}}))}
-          className={cn("px-6 py-3 rounded-2xl font-black text-xs relative z-10", state.faith.ramadanMode ? "bg-bg text-white" : "bg-white/20")}
+          onClick={() => {
+            const mode = !state.faith.ramadanMode;
+            setState((p:any)=>({...p, faith: {...p.faith, ramadanMode: mode}}));
+            triggerToast(mode ? 'تفعيل وضع رمضان 🌙 مبارك عليكم الشهر' : 'العودة للوضع العادي');
+          }}
+          className={cn("px-6 py-3 rounded-2xl font-black text-xs relative z-10 active:scale-95 transition-all shadow-lg", state.faith.ramadanMode ? "bg-bg text-white" : "bg-white/20")}
         >
           {state.faith.ramadanMode ? 'تعطيل' : 'تفعيل'}
         </button>
       </div>
       <div className="grid grid-cols-2 gap-4">
-        <button className="p-6 bg-white/5 border border-white/10 rounded-[35px] flex flex-col items-center gap-3">
+        <button 
+          onClick={() => triggerToast('جاري فتح ورد الأذكار... ✨')}
+          className="p-6 bg-white/5 border border-white/10 rounded-[35px] flex flex-col items-center gap-3 active:bg-white/10 transition-all"
+        >
           <BookOpen size={24} className="text-faith" />
           <span className="text-xs font-black">ورد الأذكار</span>
         </button>
-        <button className="p-6 bg-white/5 border border-white/10 rounded-[35px] flex flex-col items-center gap-3">
+        <button 
+          onClick={() => triggerToast('تم تسجيل تقدمك في الختمة! 📖')}
+          className="p-6 bg-white/5 border border-white/10 rounded-[35px] flex flex-col items-center gap-3 active:bg-white/10 transition-all"
+        >
           <Target size={24} className="text-faith" />
           <span className="text-xs font-black">ختمة القرآن</span>
         </button>
@@ -721,8 +800,37 @@ function FaithSection({ state, setState, addPoints }: any) {
   );
 }
 
-function HabitsSection({ state, setState, addPoints }: any) {
+function HabitsSection({ state, setState, addPoints, triggerToast }: any) {
   const [newHabit, setNewHabit] = useState('');
+
+  const handleAddHabit = () => {
+    if (!newHabit) return;
+    setState((p:any)=>({...p, habits: [...p.habits, {id: Date.now(), title: newHabit, completedDates: []}] })); 
+    addPoints(20); 
+    setNewHabit('');
+    triggerToast('تمت إضافة العادة بنجاح! 💪');
+  };
+
+  const handleToggleHabit = (id: number) => {
+    const today = new Date().toISOString().split('T')[0];
+    setState((p:any) => ({
+      ...p,
+      habits: p.habits.map((h:any) => {
+        if (h.id === id) {
+          const completed = h.completedDates?.includes(today);
+          if (completed) {
+            return { ...h, completedDates: h.completedDates.filter((d:string)=>d !== today) };
+          } else {
+            addPoints(5);
+            triggerToast('أحسنت! استمر على هذا المنوال ✨');
+            return { ...h, completedDates: [...(h.completedDates || []), today] };
+          }
+        }
+        return h;
+      })
+    }));
+  };
+
   return (
     <div className="space-y-6 pb-10" dir="rtl">
       <SectionHeader title="تتبع العادات" icon={CheckSquare} />
@@ -733,30 +841,36 @@ function HabitsSection({ state, setState, addPoints }: any) {
           value={newHabit} onChange={e => setNewHabit(e.target.value)}
         />
         <button 
-          onClick={() => { setState((p:any)=>({...p, habits: [...p.habits, {id: Date.now(), title: newHabit, completedDates: []}] })); addPoints(20); setNewHabit(''); }}
-          className="bg-health text-bg p-3 rounded-2xl"
+          onClick={handleAddHabit}
+          className="bg-health text-bg p-3 rounded-2xl active:scale-90 transition-all shadow-lg shadow-health/20"
         >
           <Plus size={20} />
         </button>
       </div>
       <div className="space-y-2">
-        {state.habits.map((h: any) => (
-          <div key={h.id} className="bg-white/5 p-5 rounded-2xl border border-white/5 flex justify-between items-center">
-            <div className="text-right">
-              <div className="text-sm font-black">{h.title}</div>
-              <div className="text-[10px] opacity-40 font-bold">بدأت منذ يومين</div>
+        {state.habits.map((h: any) => {
+          const isDone = (h.completedDates || []).includes(new Date().toISOString().split('T')[0]);
+          return (
+            <div key={h.id} className="bg-white/5 p-5 rounded-2xl border border-white/5 flex justify-between items-center transition-all">
+              <div className="text-right">
+                <div className={cn("text-sm font-black transition-all", isDone ? "line-through opacity-40" : "")}>{h.title}</div>
+                <div className="text-[10px] opacity-40 font-bold">المواصلة هي سر النجاح</div>
+              </div>
+              <button 
+                onClick={() => handleToggleHabit(h.id)}
+                className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all", isDone ? "bg-health text-bg" : "bg-white/10 opacity-40 hover:opacity-100")}
+              >
+                <Check size={20} />
+              </button>
             </div>
-            <button className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
-              <Check size={20} className="text-health" />
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function GoalsSection({ state, setState, addPoints }: any) {
+function GoalsSection({ state, setState, addPoints, triggerToast }: any) {
   return (
     <div className="space-y-6 pb-10" dir="rtl">
       <SectionHeader title="الأهداف الشخصية" icon={TrendingUp} />
@@ -765,20 +879,30 @@ function GoalsSection({ state, setState, addPoints }: any) {
           <Target size={40} className="text-prod" />
         </div>
         <div className="text-lg font-black text-center">لم تضف أهدافاً لمستقبلك اليوم.</div>
-        <button className="px-8 py-3 bg-prod text-white rounded-2xl font-black text-xs uppercase tracking-widest">إضافة هدف جديد</button>
+        <button 
+          onClick={() => triggerToast('إدارة الأهداف متاحة في النسخة الاحترافية 🏆')}
+          className="px-8 py-3 bg-prod text-white rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-prod/20"
+        >
+          إضافة هدف جديد
+        </button>
       </div>
     </div>
   );
 }
 
-function TravelSection({ state, setState, addPoints }: any) {
+function TravelSection({ state, setState, addPoints, triggerToast }: any) {
   return (
     <div className="space-y-6 pb-10" dir="rtl">
       <SectionHeader title="إدارة السفر" icon={Plane} />
       <div className="bg-white/5 p-8 rounded-[45px] border border-white/10 space-y-6">
         <div className="flex justify-between items-center">
           <div className="text-[10px] font-black opacity-30 uppercase tracking-widest">مخطط الرحلات</div>
-          <button className="text-money text-xs font-black">+ وجهة جديدة</button>
+          <button 
+            onClick={() => triggerToast('جاري تحضير الحقائب... السفر قريباً ✈️')}
+            className="text-money text-xs font-black active:scale-95 transition-all"
+          >
+            + وجهة جديدة
+          </button>
         </div>
         <div className="p-8 bg-white/5 rounded-[30px] border border-white/5 text-center space-y-2">
           <Globe size={32} className="mx-auto opacity-10 mb-2" />
@@ -789,34 +913,53 @@ function TravelSection({ state, setState, addPoints }: any) {
   );
 }
 
-function HomeSection({ state, setState, addPoints }: any) {
+function HomeSection({ state, setState, addPoints, triggerToast }: any) {
   return (
     <div className="space-y-6 pb-10" dir="rtl">
       <SectionHeader title="المتطلبات المنزلية" icon={HomeIcon} />
       <div className="grid grid-cols-2 gap-4">
-        <button className="p-6 bg-white/5 border border-white/10 rounded-[35px] flex flex-col items-center gap-3">
+        <button 
+          onClick={() => triggerToast('تم فتح قائمة التسوق المنزلية 🛒')}
+          className="p-6 bg-white/5 border border-white/10 rounded-[35px] flex flex-col items-center gap-3 active:scale-95 active:bg-white/10 transition-all font-black"
+        >
           <ShoppingBag size={24} className="text-faith" />
-          <span className="text-xs font-black">سجل التسوق</span>
+          <span className="text-xs">سجل التسوق</span>
         </button>
-        <button className="p-6 bg-white/5 border border-white/10 rounded-[35px] flex flex-col items-center gap-3">
+        <button 
+          onClick={() => triggerToast('سجل صيانة المنزل محفوظ بأمان 🛠️')}
+          className="p-6 bg-white/5 border border-white/10 rounded-[35px] flex flex-col items-center gap-3 active:scale-95 active:bg-white/10 transition-all font-black"
+        >
           <Settings size={24} className="text-faith" />
-          <span className="text-xs font-black">سجل الصيانة</span>
+          <span className="text-xs">سجل الصيانة</span>
         </button>
       </div>
     </div>
   );
 }
 
-function EmergencySection({ setActiveSection, state, setState }: any) {
+function EmergencySection({ setActiveSection, state, setState, triggerToast }: any) {
+  const handleCall = (dest: string) => {
+    triggerToast(`جاري الاتصال بـ ${dest}... 📞`);
+    setTimeout(() => {
+      triggerToast('عذراً، الاتصال متاح فقط من التطبيق المنزّل 📱');
+    }, 2000);
+  };
+
   return (
     <div className="space-y-6 pb-10" dir="rtl">
       <SectionHeader title="مركز الطوارئ" icon={AlertCircle} />
       <div className="grid grid-cols-2 gap-4">
-        <button className="bg-danger p-6 rounded-[35px] text-white flex flex-col items-center gap-2 shadow-xl shadow-danger/20 active:scale-95 transition-all">
+        <button 
+          onClick={() => handleCall('الإسعاف (٩٩٧)')}
+          className="bg-danger p-6 rounded-[35px] text-white flex flex-col items-center gap-2 shadow-xl shadow-danger/20 active:scale-90 active:bg-red-700 transition-all"
+        >
           <Phone size={32} />
           <span className="text-xs font-black">اتصال بالإسعاف</span>
         </button>
-        <button className="bg-slate-800 p-6 rounded-[35px] text-white flex flex-col items-center gap-2 border border-white/5 active:scale-95 transition-all">
+        <button 
+          onClick={() => handleCall('الشرطة (٩٩٩)')}
+          className="bg-slate-800 p-6 rounded-[35px] text-white flex flex-col items-center gap-2 border border-white/5 active:scale-90 active:bg-slate-900 transition-all"
+        >
           <Shield size={32} />
           <span className="text-xs font-black">اتصال بالشرطة</span>
         </button>
@@ -868,7 +1011,7 @@ function MedicalSection({ state, setState }: any) {
   );
 }
 
-function FocusSection({ state, setState, addPoints }: any) {
+function FocusSection({ state, setState, addPoints, triggerToast }: any) {
   const [active, setActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(1500); 
 
@@ -879,6 +1022,7 @@ function FocusSection({ state, setState, addPoints }: any) {
     } else if (timeLeft === 0) {
       setActive(false);
       addPoints(10);
+      triggerToast('أحسنت! أنهيت جلسة تركيز كاملة (+١٠ نقاط) 🏆');
       setTimeLeft(1500); 
     }
     return () => clearInterval(interval);
@@ -888,6 +1032,12 @@ function FocusSection({ state, setState, addPoints }: any) {
     const mins = Math.floor(s / 60);
     const secs = s % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const handleToggle = () => {
+    setActive(!active);
+    if (!active) triggerToast('بدأ عداد التركيز... اترك جوالك الآن! ✨');
+    else triggerToast('إيقاف مؤقت للتركيز ⏸️');
   };
 
   return (
@@ -903,14 +1053,14 @@ function FocusSection({ state, setState, addPoints }: any) {
             strokeLinecap="round"
           />
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-6xl font-black text-white">{formatTime(timeLeft)}</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-6xl font-black text-white leading-none">{formatTime(timeLeft)}</span>
           <span className="text-[10px] font-black opacity-40 uppercase tracking-widest mt-2">{active ? 'جارِ التركيز...' : 'جاهز؟'}</span>
         </div>
       </div>
       <button 
-        onClick={() => setActive(!active)}
-        className={cn("px-12 py-5 rounded-[30px] font-black text-sm transition-all active:scale-95", active ? "bg-white/5 border border-white/10 text-white" : "bg-prod text-white shadow-xl shadow-prod/20")}
+        onClick={handleToggle}
+        className={cn("px-12 py-5 rounded-[30px] font-black text-sm transition-all active:scale-95 shadow-2xl", active ? "bg-white/5 border border-white/10 text-white" : "bg-prod text-white shadow-prod/20")}
       >
         {active ? 'إيقاف مؤقت' : 'ابدأ الجلسة'}
       </button>
@@ -918,12 +1068,21 @@ function FocusSection({ state, setState, addPoints }: any) {
   );
 }
 
-function StoreSection({ points, addPoints }: any) {
+function StoreSection({ points, addPoints, triggerToast }: any) {
   const items = [
     { title: 'ثيم الذهب الملكي', price: 500, icon: Sparkles, color: 'money' },
     { title: 'أيقونات النيون', price: 300, icon: Zap, color: 'prod' },
     { title: 'خلفيات طبيعية', price: 200, icon: Activity, color: 'health' },
   ];
+
+  const handlePurchase = (item: any) => {
+    if (points >= item.price) {
+      addPoints(-item.price);
+      triggerToast(`تم شراء ${item.title} بنجاح! 🎉`);
+    } else {
+      triggerToast('عذراً، رصيدك غير كافٍ. أنجز المزيد من المهام! ⏳');
+    }
+  };
 
   return (
     <div className="space-y-8 pb-10" dir="rtl">
@@ -937,11 +1096,10 @@ function StoreSection({ points, addPoints }: any) {
       </div>
       <div className="space-y-3">
         {items.map((item, i) => (
-          <div key={i} className="bg-white/5 p-6 rounded-[35px] border border-white/10 flex justify-between items-center">
+          <div key={i} className="bg-white/5 p-6 rounded-[35px] border border-white/10 flex justify-between items-center transition-all hover:bg-white/10">
              <button 
-               disabled={points < item.price} 
-               onClick={() => addPoints(-item.price)}
-               className={cn("px-6 py-3 rounded-2xl font-black text-xs transition-all", points >= item.price ? "bg-money text-bg" : "bg-white/10 opacity-30")}
+               onClick={() => handlePurchase(item)}
+               className={cn("px-6 py-3 rounded-2xl font-black text-xs transition-all active:scale-90", points >= item.price ? "bg-money text-bg shadow-lg shadow-money/20" : "bg-white/10 opacity-30 cursor-not-allowed")}
              >
                {item.price} ن
              </button>
@@ -991,8 +1149,23 @@ function PersonalitySection({ aiInsight, state }: any) {
   );
 }
 
-function SleepSection({ state, setState, addPoints }: any) {
+function SleepSection({ state, setState, addPoints, triggerToast }: any) {
+  const [sleepInput, setSleepInput] = useState('');
   const last = state.sleep[state.sleep.length - 1]?.duration || 0;
+
+  const handleSaveSleep = () => {
+    const s = parseFloat(sleepInput);
+    if (!isNaN(s) && s >= 0) {
+      setState((p:any) => ({
+        ...p,
+        sleep: [...p.sleep, { id: Date.now(), duration: s, date: new Date().toISOString() }]
+      }));
+      addPoints(10);
+      setSleepInput('');
+      triggerToast('تم تسجيل ساعات النوم 😴 نوم الهناء!');
+    }
+  };
+
   return (
     <div className="space-y-6 pb-10" dir="rtl">
       <SectionHeader title="تحليل النوم" icon={Moon} />
@@ -1004,8 +1177,17 @@ function SleepSection({ state, setState, addPoints }: any) {
       <div className="bg-white/5 p-6 rounded-[35px] border border-white/10 text-right">
         <div className="text-sm font-black mb-4">سجل ساعات نومك</div>
         <div className="flex gap-2">
-          <input type="number" placeholder="كم ساعة نمت؟" className="flex-1 bg-transparent border-none outline-none text-right font-black" />
-          <button onClick={()=>addPoints(5)} className="bg-money text-bg px-8 py-3 rounded-2xl font-black text-xs uppercase">حفظ</button>
+          <input 
+            type="number" step="0.5" placeholder="كم ساعة نمت؟" 
+            className="flex-1 bg-transparent border-none outline-none text-right font-black outline-none" 
+            value={sleepInput} onChange={e => setSleepInput(e.target.value)}
+          />
+          <button 
+            onClick={handleSaveSleep} 
+            className="bg-money text-bg px-8 py-3 rounded-2xl font-black text-xs uppercase active:scale-95 transition-all shadow-lg shadow-money/20"
+          >
+            حفظ
+          </button>
         </div>
       </div>
     </div>
@@ -1071,10 +1253,14 @@ function FeaturesSection({ setActiveSection }: { setActiveSection: (s: Section) 
 
 function NavItem({ active, icon: Icon, label, onClick }: any) {
   return (
-    <button onClick={onClick} className={cn("flex flex-col items-center gap-1 transition-all", active ? "text-money" : "text-white opacity-40")}>
-      <Icon size={20} />
-      <span className="text-[9px] font-black opacity-60 uppercase">{label}</span>
-    </button>
+    <motion.button 
+      whileTap={{ scale: 0.9 }}
+      onClick={onClick} 
+      className={cn("flex flex-col items-center gap-1.5 transition-all flex-1 py-1", active ? "text-money" : "text-white opacity-40")}
+    >
+      <Icon size={22} className={cn("transition-all", active ? "scale-110" : "")} />
+      <span className="text-[10px] font-black uppercase tracking-tight">{label}</span>
+    </motion.button>
   );
 }
 
